@@ -4,7 +4,8 @@ class ClassState extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            error: true
+            error: true,
+            success: false
         };
     }
 
@@ -16,7 +17,7 @@ class ClassState extends React.Component {
                 {this.state.error && 
                     (<p>Error: El código es incorrecto</p>)}
                 <input placeholder="Código de seguridad"/>
-                <button onClick={()=>this.setState({ error: !error })} >Comprobar</button>
+                <button onClick={() => this.setState({ error: !this.state.error })}>Comprobar</button>
             </div>
         )
     }
