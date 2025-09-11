@@ -2,42 +2,66 @@ import React from "react";
 
 function UseState({ name }) {
     const SECURITY_CODE = 'paradigma';
-    const [value, setValue] = React.useState('');
-    const [error, setError] = React.useState(false);
-    const [loading, setLoading] = React.useState(false);
+    const [state, setState] = React.useState({
+        loading: false,
+        error: false,
+        value: ''
+    });
 
     React.useEffect(()=>{
         console.log('Inicio');        
-        if(!!loading){
-            setError(false);
+        if(!!state.loading){
             setTimeout(()=> {
                 console.log('Iniciando la validacion');
-                console.log('Terminando la validacion');
-                setLoading(false);
-                if(value !== SECURITY_CODE){
-                    setError(true)
+                setState({
+                    ...state,
+                    loading:false,
+                });
+                console.log(state);
+                if(state.value === SECURITY_CODE){
+                    setState({
+                        ...state,
+                        loading: false,
+                        error:false
+                    })
                 }
+                else{
+                    setState({
+                        ...state,
+                        loading: false,
+                        error:true
+                    })
+                }
+                console.log(state);
+                console.log('Terminando la validacion');
             }, 3000);    
         }
         console.log('fin');
-    },[loading]);
+    },[state.loading]);
 
     return (
     <div>
         <h2>Eliminar { name }</h2>
         <p>Por favor, escribe el código de seguridad para confirmar que quieres eliminar</p>
 
-        {error && 
+        {(state.error && !state.loading) && 
             (<p>Error: El código es incorrecto</p>)}
-        {loading && 
+        {state.loading && 
             (<p>Cargando...</p>)}
         <input 
         placeholder="Código de seguridad"
-        value={value}
+        value={state.value}
         onChange={(event)=>{
-            setValue(event.target.value);
+            console.log(event.target.value);
+            setState({
+                ...state,
+                value: event.target.value
+            });
         }}/>
-        <button onClick={()=> setLoading(true)}>Comprobar</button>
+        <button onClick={()=> {setState({
+            ...state,
+            loading:true
+            })}}>Comprobar</button>
     </div>
     )
 }
