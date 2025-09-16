@@ -5,7 +5,9 @@ function UseState({ name }) {
     const [state, setState] = React.useState({
         loading: false,
         error: false,
-        value: ''
+        value: '',
+        deleted: false,
+        confirmed: false,
     });
 
     React.useEffect(()=>{
@@ -22,7 +24,8 @@ function UseState({ name }) {
                     setState({
                         ...state,
                         loading: false,
-                        error:false
+                        error:false,
+                        confirmed: true
                     })
                 }
                 else{
@@ -39,31 +42,74 @@ function UseState({ name }) {
         console.log('fin');
     },[state.loading]);
 
-    return (
-    <div>
-        <h2>Eliminar { name }</h2>
-        <p>Por favor, escribe el código de seguridad para confirmar que quieres eliminar</p>
+    if(!state.deleted && !state.confirmed) {
+        return (
+            <div>
+                <h2>Eliminar { name }</h2>
+                <p>Por favor, escribe el código de seguridad para confirmar que quieres eliminar</p>
 
-        {(state.error && !state.loading) && 
-            (<p>Error: El código es incorrecto</p>)}
-        {state.loading && 
-            (<p>Cargando...</p>)}
-        <input 
-        placeholder="Código de seguridad"
-        value={state.value}
-        onChange={(event)=>{
-            console.log(event.target.value);
-            setState({
-                ...state,
-                value: event.target.value
-            });
-        }}/>
-        <button onClick={()=> {setState({
-            ...state,
-            loading:true
-            })}}>Comprobar</button>
-    </div>
-    )
+                {(state.error && !state.loading) && 
+                    (<p>Error: El código es incorrecto</p>)}
+                {state.loading && 
+                    (<p>Cargando...</p>)}
+                <input 
+                placeholder="Código de seguridad"
+                value={state.value}
+                onChange={(event)=>{
+                    console.log(event.target.value);
+                    setState({
+                        ...state,
+                        value: event.target.value
+                    });
+                }}/>
+                <button onClick={()=> {setState({
+                    ...state,
+                    loading:true
+                    })}}>Comprobar</button>
+            </div>
+            )
+    } else if (!!state.confirmed && !state.deleted){
+        return (
+            <React.Fragment>
+                <p>Esta seguro de eliminar</p>
+                <button 
+                    onClick={
+                        ()=>{
+                            setState({
+                                ...state,
+                                deleted: true
+                            })
+                        }
+                    }>Si, eliminar</button>
+                <button onClick={
+                        ()=>{
+                            setState({
+                                ...state,
+                                confirmed: false,
+                                value: ''
+                            })
+                        }
+                    }>No, conservar</button>
+            </React.Fragment>
+        )
+    } else {
+        return (
+            <React.Fragment>
+                <p>Eliminado con éxito</p>
+                                <button onClick={
+                        ()=>{
+                            setState({
+                                ...state,
+                                confirmed: false,
+                                deleted: false,
+                                value: ''
+                            })
+                        }
+                    }>Recuperar estado</button>
+            </React.Fragment>
+        )
+    }
+    
 }
 
 export { UseState };
