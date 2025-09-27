@@ -1,4 +1,4 @@
-import React from "react";
+import React, { act } from "react";
 
 const initialState = {
     loading: false,
@@ -8,6 +8,15 @@ const initialState = {
     confirmed: false,
 }
 
+const actionTypes = {
+    confirm: 'CONFIRM',
+    delete: 'DELETE',
+    error: 'ERROR',
+    check: 'CHECK',
+    write: 'WRITE',
+    reset: 'reset',
+}
+    
 // const reducer = (state, action) => {
 
 // };
@@ -53,30 +62,30 @@ const reducerSwitch = (state, action) => {
 }
 
 const reducerObject = (state, payload) => ({
-    'CONFIRM': {
+    [actionTypes.confirm]: {
         ...state,
         loading: false,
         error: false,
         confirmed: true
     },
-    'ERROR': {
+    [actionTypes.error]: {
         ...state,
         error: true,
         loading: false,
     },
-    'WRITE': {
+    [actionTypes.write]: {
         ...state,
         value: payload
     },
-    'CHECK': {
+    [actionTypes.check]: {
         ...state,
         loading: true,
     },
-    'DELETE': {
+    [actionTypes.delete]: {
         ...state,
         deleted: true
     },
-    'RESET':{
+    [actionTypes.reset]:{
         ...state,
         confirmed: false,
         deleted: false,
@@ -96,16 +105,23 @@ function UseReducer({ name }) {
     const SECURITY_CODE = 'paradigma';
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
+    const onConfirm = () => dispatch({type: actionTypes.confirm })
+    const onError = () => dispatch({type: actionTypes.error })
+    const onCheck = () => dispatch({type: actionTypes.check })
+    const onDelete = () => dispatch({type: actionTypes.delete })
+    const onReset = () => dispatch({type: actionTypes.reset })
+    const onWrite = ({target: { value }}) => dispatch({type: actionTypes.write, payload: value })
+
     React.useEffect(() => {
         console.log('Inicio');
         if (!!state.loading) {
             setTimeout(() => {
                 console.log('Iniciando la validacion');
                 if (state.value === SECURITY_CODE) {
-                    dispatch({type: 'CONFIRM'});
+                    onConfirm()
                 }
                 else {
-                    dispatch({type: 'ERROR'});
+                    onError()
                 }
                 console.log(state);
                 console.log('Terminando la validacion');
@@ -127,13 +143,8 @@ function UseReducer({ name }) {
                 <input
                     placeholder="Código de seguridad"
                     value={state.value}
-                    onChange={(event) => {
-                        console.log(event.target.value);
-                        dispatch({ type: 'WRITE', payload: event.target.value });
-                    }} />
-                <button onClick={() => {
-                    dispatch({type: 'CHECK'});
-                }}>Comprobar</button>
+                    onChange={ onWrite } />
+                <button onClick={ onCheck }>Comprobar</button>
             </div>
         )
     } else if (!!state.confirmed && !state.deleted) {
@@ -141,27 +152,15 @@ function UseReducer({ name }) {
             <React.Fragment>
                 <p>Esta seguro de eliminar</p>
                 <button
-                    onClick={
-                        () => {
-                            dispatch({type: 'DELETE'});
-                        }
-                    }>Si, eliminar</button>
-                <button onClick={
-                    () => {
-                        dispatch({type: 'RESET'});
-                    }
-                }>No, conservar</button>
+                    onClick={ onDelete }>Si, eliminar</button>
+                <button onClick={ onReset }>No, conservar</button>
             </React.Fragment>
         )
     } else {
         return (
             <React.Fragment>
                 <p>Eliminado con éxito</p>
-                <button onClick={
-                    () => {
-                        dispatch({type: 'RESET'});
-                    }
-                }>Recuperar estado</button>
+                <button onClick={ onReset }>Recuperar estado</button>
             </React.Fragment>
         )
     }
